@@ -114,12 +114,43 @@ export default function Home() {
         <div className="space-y-4 mb-6">
           {recommendedExperiences.map((experience) => (
             <Link key={experience.id} href={`/experience/${experience.id}`}>
-              <div className="experience-card cursor-pointer">
-                <img 
-                  src={experience.imageUrl} 
-                  alt={experience.title}
-                  className="w-full h-24 object-cover rounded-xl"
-                />
+              <div className="experience-card cursor-pointer bg-white rounded-xl shadow-sm overflow-hidden">
+                <div className="relative">
+                  <img 
+                    src={experience.imageUrl} 
+                    alt={experience.title}
+                    className="w-full h-32 object-cover"
+                  />
+                  <button className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm">
+                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="p-3">
+                  <h4 className="font-semibold text-gray-900 mb-1 text-sm">{experience.title}</h4>
+                  <div className="flex items-center mb-1">
+                    <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
+                    <span className="text-xs font-medium">{experience.rating}</span>
+                    <span className="text-xs text-gray-500 ml-1">({experience.reviewCount})</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-2">{experience.location} • 2.3 km away</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-xs text-gray-500">
+                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12,6 12,12 16,14"/>
+                      </svg>
+                      <span>{Math.floor(experience.duration / 60)} hours</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-sm font-semibold text-gray-900">
+                        ₹{Math.floor(experience.price / 100)}
+                      </span>
+                      <span className="text-xs text-gray-500">/person</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </Link>
           ))}
