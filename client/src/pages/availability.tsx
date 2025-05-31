@@ -164,7 +164,7 @@ export default function Availability() {
 
         {/* Package Selection */}
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Package</h3>
-        <div className="space-y-3 mb-40">
+        <div className="space-y-3">
           {packages.map((pkg) => (
             <button
               key={pkg.id}
@@ -191,24 +191,24 @@ export default function Availability() {
           ))}
         </div>
 
-      </div>
+        {/* Proceed to Book Button - Part of scrollable content */}
+        <div className="mt-8 mb-6">
+          <Link href="/checkout">
+            <button 
+              onClick={handleProceedToBook}
+              disabled={!canProceed}
+              className={`w-full py-4 font-semibold rounded-xl flex items-center justify-center button-press touch-target ${
+                canProceed 
+                  ? "bg-primary text-white" 
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              <span>Proceed to Book</span>
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </button>
+          </Link>
+        </div>
 
-      {/* Proceed to Book Button - Fixed at very bottom */}
-      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md px-6 py-6 bg-white border-t border-gray-200 safe-area-bottom">
-        <Link href="/checkout">
-          <button 
-            onClick={handleProceedToBook}
-            disabled={!canProceed}
-            className={`w-full py-4 font-semibold rounded-xl flex items-center justify-center button-press touch-target ${
-              canProceed 
-                ? "bg-primary text-white" 
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            <span>Proceed to Book</span>
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </button>
-        </Link>
       </div>
     </div>
   );
