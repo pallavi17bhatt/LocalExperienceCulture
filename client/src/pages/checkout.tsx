@@ -62,7 +62,16 @@ export default function Checkout() {
     mutationFn: async (data: CheckoutForm) => {
       if (!bookingData) throw new Error("No booking data");
       
+      // Get user data from localStorage
+      const userData = localStorage.getItem("user");
+      if (!userData) {
+        throw new Error("User not authenticated");
+      }
+      
+      const user = JSON.parse(userData);
+
       const bookingPayload = {
+        userId: user.id,
         experienceId: bookingData.experienceId,
         packageId: bookingData.package.id,
         timeSlotId: bookingData.timeSlot.id,
@@ -71,7 +80,6 @@ export default function Checkout() {
         email: data.email,
         phone: data.phone,
         paymentMethod: data.paymentMethod,
-        totalAmount: Math.floor(bookingData.package.price * 1.28), // Adding taxes/fees
       };
 
       // Simulate payment processing delay for dummy payments
