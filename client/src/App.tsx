@@ -13,6 +13,8 @@ import Checkout from "@/pages/checkout";
 import Confirmation from "@/pages/confirmation";
 import MyBookings from "@/pages/my-bookings";
 import Profile from "@/pages/profile";
+import Login from "@/pages/login";
+import Signup from "@/pages/signup";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -26,6 +28,8 @@ function Router() {
       <Route path="/confirmation/:bookingId" component={Confirmation} />
       <Route path="/my-bookings" component={MyBookings} />
       <Route path="/profile" component={Profile} />
+      <Route path="/login" component={Login} />
+      <Route path="/signup" component={Signup} />
       <Route component={NotFound} />
     </Switch>
   );

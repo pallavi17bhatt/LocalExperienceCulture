@@ -14,6 +14,21 @@ async function seedDatabase() {
       return;
     }
 
+    // Seed users first
+    console.log("👤 Seeding users...");
+    const hashedPassword = await bcrypt.hash("password123", 10);
+    const userData = {
+      username: "aarti_verma",
+      email: "aarti.verma@gmail.com",
+      passwordHash: hashedPassword,
+      fullName: "Aarti Verma",
+      phone: "+91 98765 43210",
+      location: "Mumbai, Maharashtra",
+    };
+    
+    const [user] = await db.insert(users).values(userData).returning();
+    console.log(`✅ Inserted user: ${user.fullName}`);
+
     // Seed experiences
     console.log("📝 Seeding experiences...");
     const experiencesData = [

@@ -1,10 +1,156 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertBookingSchema } from "@shared/schema";
+import { insertBookingSchema, insertUserSchema } from "@shared/schema";
 import { z } from "zod";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
+
+// Session middleware
+function setupSession(app: Express) {
+  const pgStore = connectPg(session);
+  const sessionStore = new pgStore({
+    conString: process.env.DATABASE_URL,
+    createTableIfMissing: true,
+    ttl: 7 * 24 * 60 * 60, // 7 days
+  });
+
+  app.use(session({
+    store: sessionStore,
+    secret: process.env.SESSION_SECRET || 'fallback-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: false, // Set to true in production with HTTPS
+    },
+  }));
+}
+
+// Authentication middleware
+function requireAuth(req: any, res: any, next: any) {
+  if (req.session?.userId) {
+    next();
+  } else {
+    res.status(401).json({ message: "Authentication required" });
+  }
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup session middleware
+  setupSession(app);
+
+  // Authentication routes
+  app.post("/api/auth/signup", async (req, res) => {
+    try {
+      const userData = insertUserSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(userData.username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+
+      const existingEmail = await storage.getUserByEmail(userData.email);
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+
+      const user = await storage.createUser(userData);
+      
+      // Set session
+      (req.session as any).userId = user.id;
+      (req.session as any).user = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        fullName: user.fullName,
+      };
+
+      res.status(201).json({
+        message: "User created successfully",
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          fullName: user.fullName,
+        }
+      });
+    } catch (error) {
+      console.error("Signup error:", error);
+      res.status(400).json({ message: "Invalid user data" });
+    }
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+      }
+
+      const user = await storage.validateUserPassword(username, password);
+      if (!user) {
+        return res.status(401).json({ message: "Invalid username or password" });
+      }
+
+      // Set session
+      (req.session as any).userId = user.id;
+      (req.session as any).user = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        fullName: user.fullName,
+      };
+
+      res.json({
+        message: "Login successful",
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          fullName: user.fullName,
+        }
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  app.post("/api/auth/logout", (req, res) => {
+    req.session?.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Logout failed" });
+      }
+      res.json({ message: "Logout successful" });
+    });
+  });
+
+  app.get("/api/auth/me", requireAuth, async (req, res) => {
+    try {
+      const userId = (req.session as any).userId;
+      const user = await storage.getUserById(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        fullName: user.fullName,
+        phone: user.phone,
+        location: user.location,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   // Get all experiences
   app.get("/api/experiences", async (req, res) => {
     try {
@@ -128,6 +274,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(bookings);
     } catch (error) {
       console.error("Error fetching bookings by email:", error);
+      res.status(500).json({ message: "Failed to fetch bookings" });
+    }
+  });
+
+  // Get bookings for logged-in user
+  app.get("/api/my-bookings", requireAuth, async (req, res) => {
+    try {
+      const userId = (req.session as any).userId;
+      const bookings = await storage.getBookingsByUserId(userId);
+      res.json(bookings);
+    } catch (error) {
+      console.error("Error fetching user bookings:", error);
       res.status(500).json({ message: "Failed to fetch bookings" });
     }
   });
