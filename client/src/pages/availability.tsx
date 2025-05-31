@@ -41,6 +41,11 @@ export default function Availability() {
     queryKey: [`/api/experiences/${experienceId}/timeslots`],
   });
 
+  // Remove duplicates from time slots
+  const uniqueTimeSlots = timeSlots ? timeSlots.filter((slot, index, self) => 
+    index === self.findIndex(s => s.startTime === slot.startTime && s.endTime === slot.endTime && s.name === slot.name)
+  ) : [];
+
   const { data: packages } = useQuery<Package[]>({
     queryKey: [`/api/experiences/${experienceId}/packages`],
   });
@@ -134,7 +139,7 @@ export default function Availability() {
         <div className="bg-gray-50 rounded-xl p-4 mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Available Time Slots</h3>
           <div className="grid grid-cols-2 gap-3">
-            {timeSlots.map((slot) => (
+            {uniqueTimeSlots.map((slot) => (
               <button
                 key={slot.id}
                 onClick={() => setSelectedTimeSlot(slot.id)}
@@ -154,22 +159,6 @@ export default function Availability() {
             ))}
           </div>
         </div>
-
-        {/* CTA Button */}
-        <Link href="/checkout">
-          <button 
-            onClick={handleProceedToBook}
-            disabled={!canProceed}
-            className={`w-full py-4 font-semibold rounded-xl mb-6 flex items-center justify-center ${
-              canProceed 
-                ? "bg-primary text-white" 
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            <span>Proceed to Book</span>
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </button>
-        </Link>
 
         {/* Package Selection */}
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Package</h3>
@@ -199,6 +188,21 @@ export default function Availability() {
             </button>
           ))}
         </div>
+
+        {/* Proceed to Book Button - Fixed at bottom */}
+        {canProceed && (
+          <div className="fixed bottom-20 left-0 right-0 px-6 py-4 bg-white border-t border-gray-200">
+            <Link href="/checkout">
+              <button 
+                onClick={handleProceedToBook}
+                className="w-full py-4 bg-primary text-white font-semibold rounded-xl flex items-center justify-center button-press touch-target"
+              >
+                <span>Proceed to Book</span>
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </button>
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
