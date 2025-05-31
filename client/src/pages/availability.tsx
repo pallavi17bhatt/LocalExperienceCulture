@@ -192,7 +192,7 @@ export default function Availability() {
         </div>
 
         {/* Spacer */}
-        <div className="h-16"></div>
+        <div className="h-8"></div>
 
         {/* Proceed to Book Button - Part of scrollable content */}
         <div className="mb-12">
