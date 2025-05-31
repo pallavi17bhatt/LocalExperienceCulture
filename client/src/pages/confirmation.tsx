@@ -106,10 +106,12 @@ export default function Confirmation() {
           </button>
         </Link>
         
-        <button className="w-full py-4 border border-primary text-primary font-semibold rounded-xl flex items-center justify-center">
-          <CalendarCheck className="w-4 h-4 mr-2" />
-          View My Bookings
-        </button>
+        <Link href="/my-bookings" className="w-full">
+          <button className="w-full py-4 border border-primary text-primary font-semibold rounded-xl flex items-center justify-center">
+            <CalendarCheck className="w-4 h-4 mr-2" />
+            View My Bookings
+          </button>
+        </Link>
       </div>
     </div>
   );
