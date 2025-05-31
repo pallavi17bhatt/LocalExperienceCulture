@@ -193,6 +193,16 @@ npx expo start
 
 ### Building for Production
 
+#### Web Build
+
+To build the web application for production:
+
+```bash
+npm run build
+```
+
+The production build will be available in the `dist/` directory.
+
 #### Android Build
 
 1. For React Native CLI:
@@ -200,11 +210,19 @@ npx expo start
 cd android
 ./gradlew assembleRelease
 ```
+   Build output: `android/app/build/outputs/apk/release/app-release.apk`
 
 2. For Expo:
 ```bash
 npx expo build:android
 ```
+   Build output: Downloaded from Expo servers or available in Expo dashboard
+
+3. For Expo with EAS Build:
+```bash
+npx eas build --platform android
+```
+   Build output: `android/app/build/outputs/apk/release/` or `android/app/build/outputs/bundle/release/`
 
 #### iOS Build
 
@@ -213,11 +231,26 @@ npx expo build:android
 cd ios
 xcodebuild -workspace LoklyMobile.xcworkspace -scheme LoklyMobile archive
 ```
+   Build output: Xcode Archives (accessible via Xcode Organizer)
 
 2. For Expo:
 ```bash
 npx expo build:ios
 ```
+   Build output: Downloaded IPA file from Expo servers
+
+3. For Expo with EAS Build:
+```bash
+npx eas build --platform ios
+```
+   Build output: IPA file available for download from EAS dashboard
+
+#### Build Outputs Summary
+
+- **Web**: `dist/` directory
+- **Android APK**: `android/app/build/outputs/apk/release/app-release.apk`
+- **Android Bundle**: `android/app/build/outputs/bundle/release/app-release.aab`
+- **iOS**: `.ipa` file (location varies by build method)
 
 ### Key Adaptations for Mobile
 
