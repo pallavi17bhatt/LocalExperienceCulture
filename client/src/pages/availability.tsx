@@ -195,7 +195,7 @@ export default function Availability() {
         <div className="h-6"></div>
 
         {/* Proceed to Book Button - Part of scrollable content */}
-        <div className="mb-32">
+        <div className="mb-6">
           <Link href="/checkout">
             <button 
               onClick={handleProceedToBook}
@@ -211,6 +211,9 @@ export default function Availability() {
             </button>
           </Link>
         </div>
+
+        {/* Bottom spacer */}
+        <div className="h-6"></div>
 
       </div>
     </div>
