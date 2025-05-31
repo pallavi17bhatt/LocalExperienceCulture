@@ -80,6 +80,7 @@ export default function Checkout() {
         email: data.email,
         phone: data.phone,
         paymentMethod: data.paymentMethod,
+        totalAmount: Math.floor(bookingData.package.price * 1.28), // Adding taxes/fees
       };
 
       // Simulate payment processing delay for dummy payments
