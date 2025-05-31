@@ -1,6 +1,20 @@
 import { pgTable, text, serial, integer, boolean, timestamp, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
+
+// Users table for authentication
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  fullName: text("full_name").notNull(),
+  phone: text("phone"),
+  location: text("location"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
 
 export const experiences = pgTable("experiences", {
   id: serial("id").primaryKey(),
@@ -40,6 +54,7 @@ export const packages = pgTable("packages", {
 
 export const bookings = pgTable("bookings", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
   experienceId: integer("experience_id").notNull(),
   packageId: integer("package_id"),
   timeSlotId: integer("time_slot_id").notNull(),
@@ -75,6 +90,38 @@ export const insertBookingSchema = createInsertSchema(bookings).omit({
   createdAt: true,
 });
 
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  bookings: many(bookings),
+}));
+
+export const bookingsRelations = relations(bookings, ({ one }) => ({
+  user: one(users, {
+    fields: [bookings.userId],
+    references: [users.id],
+  }),
+  experience: one(experiences, {
+    fields: [bookings.experienceId],
+    references: [experiences.id],
+  }),
+  package: one(packages, {
+    fields: [bookings.packageId],
+    references: [packages.id],
+  }),
+  timeSlot: one(timeSlots, {
+    fields: [bookings.timeSlotId],
+    references: [timeSlots.id],
+  }),
+}));
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Experience = typeof experiences.$inferSelect;
 export type InsertExperience = z.infer<typeof insertExperienceSchema>;
 export type TimeSlot = typeof timeSlots.$inferSelect;
