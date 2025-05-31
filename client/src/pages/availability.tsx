@@ -192,7 +192,7 @@ export default function Availability() {
         </div>
 
         {/* Proceed to Book Button - Fixed at bottom */}
-        <div className="fixed bottom-20 left-0 right-0 px-6 py-4 bg-white border-t border-gray-200">
+        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 w-full max-w-md px-6 py-4 bg-white border-t border-gray-200">
           <Link href="/checkout">
             <button 
               onClick={handleProceedToBook}
