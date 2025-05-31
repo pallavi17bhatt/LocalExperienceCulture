@@ -152,8 +152,8 @@ export default function Landing() {
   };
 
   return (
-    <div className="h-screen overflow-y-auto bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
-      <div className="min-h-screen relative">
+    <div className="h-screen overflow-hidden bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+      <div className="h-full overflow-y-auto relative">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-orange-300 blur-xl"></div>
@@ -161,9 +161,9 @@ export default function Landing() {
           <div className="absolute bottom-20 left-1/3 w-40 h-40 rounded-full bg-yellow-300 blur-xl"></div>
         </div>
 
-        <div className="relative px-6 py-8">
+        <div className="relative px-6 py-8 min-h-full">
           {/* Logo and Brand */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center mb-4 mx-auto shadow-lg">
               <Sparkles className="w-10 h-10 text-white" />
             </div>
@@ -172,7 +172,7 @@ export default function Landing() {
           </div>
 
           {/* Features Highlight */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="text-center">
               <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-2">
                 <svg className="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
@@ -200,7 +200,7 @@ export default function Landing() {
           </div>
 
           {/* Auth Form */}
-          <div className="bg-white rounded-3xl shadow-xl p-6 max-w-md mx-auto">
+          <div className="bg-white rounded-3xl shadow-xl p-6 max-w-md mx-auto mb-8">
             {/* Tab Switcher */}
             <div className="flex bg-gray-100 rounded-2xl p-1 mb-6">
               <button
