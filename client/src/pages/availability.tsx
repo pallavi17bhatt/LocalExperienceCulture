@@ -110,7 +110,7 @@ export default function Availability() {
       </div>
 
       {/* Content */}
-      <div className="px-6 pb-20">
+      <div className="px-6 pb-32">
         <h2 className="text-xl font-bold text-gray-900 mb-1">{experience.title}</h2>
         <div className="flex items-center text-gray-600 mb-6">
           <MapPin className="w-4 h-4 text-primary mr-2" />
@@ -191,23 +191,24 @@ export default function Availability() {
           ))}
         </div>
 
-        {/* Proceed to Book Button - Fixed at bottom */}
-        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 w-full max-w-md px-6 py-4 bg-white border-t border-gray-200">
-          <Link href="/checkout">
-            <button 
-              onClick={handleProceedToBook}
-              disabled={!canProceed}
-              className={`w-full py-4 font-semibold rounded-xl flex items-center justify-center button-press touch-target ${
-                canProceed 
-                  ? "bg-primary text-white" 
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
-            >
-              <span>Proceed to Book</span>
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </button>
-          </Link>
-        </div>
+      </div>
+
+      {/* Proceed to Book Button - Fixed at very bottom */}
+      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md px-6 py-6 bg-white border-t border-gray-200 safe-area-bottom">
+        <Link href="/checkout">
+          <button 
+            onClick={handleProceedToBook}
+            disabled={!canProceed}
+            className={`w-full py-4 font-semibold rounded-xl flex items-center justify-center button-press touch-target ${
+              canProceed 
+                ? "bg-primary text-white" 
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+          >
+            <span>Proceed to Book</span>
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </button>
+        </Link>
       </div>
     </div>
   );
