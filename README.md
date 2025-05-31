@@ -52,7 +52,17 @@ cd lokly-app
 npm install
 ```
 
-3. Start the development server:
+3. Set up the database:
+```bash
+npm run db:push
+```
+
+4. Seed the database with sample data:
+```bash
+npx tsx scripts/seed.ts
+```
+
+5. Start the development server:
 ```bash
 npm run dev
 ```
@@ -278,6 +288,46 @@ API_BASE_URL=http://localhost:5000
 ```
 API_BASE_URL=https://your-production-api.com
 ```
+
+## Database Management
+
+### Seeding Data
+
+The application includes a comprehensive seed script with sample experiences:
+
+```bash
+# Run the seed script to populate database with sample data
+npx tsx scripts/seed.ts
+```
+
+The seed data includes:
+- **5 cultural experiences** (Dance, Cooking, Pottery, Photography, Silk Weaving)
+- **12 time slots** across different times of day
+- **11 pricing packages** with various session options and discounts
+
+### Database Commands
+
+```bash
+# Push schema changes to database
+npm run db:push
+
+# Seed database with sample data
+npx tsx scripts/seed.ts
+
+# Reset database (push schema + seed data)
+npm run db:push && npx tsx scripts/seed.ts
+```
+
+### Sample Data Structure
+
+The seed script creates authentic Indian cultural experiences:
+- Traditional Kathak Dance Class
+- Authentic Banarasi Cooking
+- Pottery Workshop with Local Artisan  
+- Heritage Photography Walk
+- Traditional Silk Weaving Experience
+
+Each experience includes realistic pricing, host information, locations in Varanasi, and multiple time slots and packages.
 
 ## API Documentation
 
