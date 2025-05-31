@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "wouter";
-import { ArrowLeft, MapPin, ArrowRight } from "lucide-react";
+import { Link, useParams, useLocation } from "wouter";
+import { ArrowLeft, MapPin, ArrowRight, LogIn } from "lucide-react";
 import { useBooking } from "@/hooks/use-booking";
+import { useToast } from "@/hooks/use-toast";
 import StatusBar from "@/components/status-bar";
 import type { Experience, TimeSlot, Package } from "@shared/schema";
 
@@ -22,6 +23,15 @@ export default function Availability() {
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
   
   const { setBookingData } = useBooking();
+  const [, setLocation] = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { toast } = useToast();
+
+  // Check authentication status
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    setIsAuthenticated(!!userData);
+  }, []);
 
   const { data: experience } = useQuery<Experience>({
     queryKey: [`/api/experiences/${experienceId}`],
@@ -38,6 +48,17 @@ export default function Availability() {
   const handleProceedToBook = () => {
     if (!experience || !selectedTimeSlot || selectedPackage === null) return;
 
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to book this experience.",
+        variant: "destructive",
+      });
+      setLocation("/login");
+      return;
+    }
+
     const selectedTime = timeSlots?.find(slot => slot.id === selectedTimeSlot);
     const selectedPkg = packages?.find(pkg => pkg.id === selectedPackage);
     const selectedDateInfo = dates.find(d => d.key === selectedDate);
@@ -50,6 +71,7 @@ export default function Availability() {
         package: selectedPkg,
         selectedDate: `${selectedDateInfo.date} ${selectedDateInfo.month} 2025`,
       });
+      setLocation("/checkout");
     }
   };
 

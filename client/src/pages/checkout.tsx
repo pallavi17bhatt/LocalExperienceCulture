@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { ArrowLeft, Calendar, Clock, User, Phone, Mail, Lock, Shield } from "lucide-react";
