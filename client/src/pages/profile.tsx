@@ -67,6 +67,10 @@ export default function Profile() {
     onSuccess: () => {
       localStorage.removeItem("user");
       setIsAuthenticated(false);
+      
+      // Dispatch custom event to notify App component
+      window.dispatchEvent(new CustomEvent('userLogout'));
+      
       toast({
         title: "Logged out successfully",
         description: "You have been signed out of your account.",

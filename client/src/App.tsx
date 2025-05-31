@@ -38,6 +38,26 @@ function Router() {
     } else {
       setIsLoading(false);
     }
+
+    // Listen for authentication changes (like logout)
+    const handleStorageChange = () => {
+      const updatedUserData = localStorage.getItem("user");
+      setIsAuthenticated(!!updatedUserData);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Custom event for logout
+    const handleLogout = () => {
+      setIsAuthenticated(false);
+    };
+
+    window.addEventListener('userLogout', handleLogout);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('userLogout', handleLogout);
+    };
   }, []);
 
   if (isLoading && !isAuthenticated) {
@@ -49,8 +69,8 @@ function Router() {
       {!isAuthenticated ? (
         <>
           <Route path="/" component={Landing} />
-          <Route path="/login" component={Login} />
-          <Route path="/signup" component={Signup} />
+          <Route path="/login" component={Landing} />
+          <Route path="/signup" component={Landing} />
           <Route component={Landing} />
         </>
       ) : (
@@ -60,11 +80,9 @@ function Router() {
           <Route path="/experience/:id" component={ExperienceDetail} />
           <Route path="/availability/:id" component={Availability} />
           <Route path="/checkout" component={Checkout} />
-          <Route path="/confirmation/:bookingId" component={Confirmation} />
+          <Route path="/confirmation/:bookingId?" component={Confirmation} />
           <Route path="/my-bookings" component={MyBookings} />
           <Route path="/profile" component={Profile} />
-          <Route path="/login" component={Login} />
-          <Route path="/signup" component={Signup} />
           <Route component={NotFound} />
         </>
       )}
