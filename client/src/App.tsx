@@ -11,6 +11,8 @@ import ExperienceDetail from "@/pages/experience-detail";
 import Availability from "@/pages/availability";
 import Checkout from "@/pages/checkout";
 import Confirmation from "@/pages/confirmation";
+import MyBookings from "@/pages/my-bookings";
+import Profile from "@/pages/profile";
 import NotFound from "@/pages/not-found";
 
 function Router() {
