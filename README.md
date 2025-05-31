@@ -2,6 +2,11 @@
 
 A React-based mobile application for booking Indian cultural experiences, connecting travelers with local hosts through short-format cultural activities like pottery classes, food walks, and dance sessions.
 
+## Authors
+
+- **Pallavi Bhatt** - Co-Author
+- **Replit Agent** - Co-Author
+
 ## Features
 
 - **Experience Discovery**: Browse and search local cultural experiences by category, location, and date
@@ -38,6 +43,62 @@ A React-based mobile application for booking Indian cultural experiences, connec
 ### Prerequisites
 - Node.js 18 or higher
 - npm or yarn
+- PostgreSQL database
+
+### Local Database Setup
+
+#### Option 1: Using Replit (Recommended for Development)
+If you're running this on Replit, the PostgreSQL database is automatically provisioned and configured. Skip to the Installation section.
+
+#### Option 2: Local PostgreSQL Installation
+
+1. **Install PostgreSQL locally:**
+
+   **macOS (using Homebrew):**
+   ```bash
+   brew install postgresql
+   brew services start postgresql
+   ```
+
+   **Ubuntu/Debian:**
+   ```bash
+   sudo apt update
+   sudo apt install postgresql postgresql-contrib
+   sudo systemctl start postgresql
+   sudo systemctl enable postgresql
+   ```
+
+   **Windows:**
+   Download and install from [postgresql.org](https://www.postgresql.org/download/windows/)
+
+2. **Create database and user:**
+   ```bash
+   # Connect to PostgreSQL as superuser
+   sudo -u postgres psql
+   
+   # Create database and user
+   CREATE DATABASE cultural_experiences;
+   CREATE USER app_user WITH PASSWORD 'your_password';
+   GRANT ALL PRIVILEGES ON DATABASE cultural_experiences TO app_user;
+   \q
+   ```
+
+3. **Set environment variables:**
+   Create a `.env` file in the project root:
+   ```bash
+   DATABASE_URL=postgresql://app_user:your_password@localhost:5432/cultural_experiences
+   PGHOST=localhost
+   PGPORT=5432
+   PGUSER=app_user
+   PGPASSWORD=your_password
+   PGDATABASE=cultural_experiences
+   ```
+
+4. **Verify database connection:**
+   ```bash
+   # Test connection (should show no errors)
+   psql -h localhost -U app_user -d cultural_experiences -c "\dt"
+   ```
 
 ### Installation
 
@@ -316,6 +377,36 @@ npx tsx scripts/seed.ts
 
 # Reset database (push schema + seed data)
 npm run db:push && npx tsx scripts/seed.ts
+```
+
+### Troubleshooting Database Issues
+
+**Connection Issues:**
+```bash
+# Check if PostgreSQL is running
+sudo systemctl status postgresql  # Linux
+brew services list | grep postgresql  # macOS
+
+# Test direct database connection
+psql -h localhost -U app_user -d cultural_experiences
+```
+
+**Permission Issues:**
+```bash
+# If you get permission denied, ensure the user has proper privileges
+sudo -u postgres psql
+GRANT ALL PRIVILEGES ON DATABASE cultural_experiences TO app_user;
+GRANT ALL ON SCHEMA public TO app_user;
+\q
+```
+
+**Schema Issues:**
+```bash
+# If tables don't exist, push the schema first
+npm run db:push
+
+# Verify tables were created
+psql -h localhost -U app_user -d cultural_experiences -c "\dt"
 ```
 
 ### Sample Data Structure
