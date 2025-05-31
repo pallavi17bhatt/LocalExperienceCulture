@@ -24,6 +24,8 @@ function Router() {
       <Route path="/availability/:id" component={Availability} />
       <Route path="/checkout" component={Checkout} />
       <Route path="/confirmation/:bookingId" component={Confirmation} />
+      <Route path="/my-bookings" component={MyBookings} />
+      <Route path="/profile" component={Profile} />
       <Route component={NotFound} />
     </Switch>
   );

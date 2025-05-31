@@ -179,8 +179,48 @@ export class DatabaseStorage implements IStorage {
     return booking || undefined;
   }
 
-  async getBookingsByEmail(email: string): Promise<Booking[]> {
-    return await db.select().from(bookings).where(eq(bookings.email, email));
+  async getBookingsByEmail(email: string): Promise<any[]> {
+    const result = await db
+      .select({
+        id: bookings.id,
+        bookingId: bookings.bookingId,
+        experienceId: bookings.experienceId,
+        packageId: bookings.packageId,
+        timeSlotId: bookings.timeSlotId,
+        selectedDate: bookings.selectedDate,
+        attendeeName: bookings.attendeeName,
+        attendeeEmail: bookings.attendeeEmail,
+        attendeePhone: bookings.attendeePhone,
+        paymentMethod: bookings.paymentMethod,
+        totalPrice: bookings.totalPrice,
+        createdAt: bookings.createdAt,
+        experience: {
+          id: experiences.id,
+          title: experiences.title,
+          imageUrl: experiences.imageUrl,
+          location: experiences.location,
+          hostName: experiences.hostName,
+        },
+        package: {
+          id: packages.id,
+          name: packages.name,
+          price: packages.price,
+        },
+        timeSlot: {
+          id: timeSlots.id,
+          name: timeSlots.name,
+          startTime: timeSlots.startTime,
+          endTime: timeSlots.endTime,
+        }
+      })
+      .from(bookings)
+      .leftJoin(experiences, eq(bookings.experienceId, experiences.id))
+      .leftJoin(packages, eq(bookings.packageId, packages.id))
+      .leftJoin(timeSlots, eq(bookings.timeSlotId, timeSlots.id))
+      .where(eq(bookings.attendeeEmail, email))
+      .orderBy(desc(bookings.id));
+    
+    return result;
   }
 }
 

@@ -120,6 +120,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get bookings by email
+  app.get("/api/bookings/by-email/:email", async (req, res) => {
+    try {
+      const email = req.params.email;
+      const bookings = await storage.getBookingsByEmail(email);
+      res.json(bookings);
+    } catch (error) {
+      console.error("Error fetching bookings by email:", error);
+      res.status(500).json({ message: "Failed to fetch bookings" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
