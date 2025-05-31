@@ -110,7 +110,7 @@ export default function Availability() {
       </div>
 
       {/* Content */}
-      <div className="px-6 pb-40">
+      <div className="px-6 pb-48">
         <h2 className="text-xl font-bold text-gray-900 mb-1">{experience.title}</h2>
         <div className="flex items-center text-gray-600 mb-6">
           <MapPin className="w-4 h-4 text-primary mr-2" />
@@ -164,7 +164,7 @@ export default function Availability() {
 
         {/* Package Selection */}
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Package</h3>
-        <div className="space-y-3">
+        <div className="space-y-3 mb-40">
           {packages.map((pkg) => (
             <button
               key={pkg.id}
