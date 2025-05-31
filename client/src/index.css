@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%; /* #FFFFFF */
+  --foreground: 20 14.3% 4.1%; /* #1F2937 */
+  --muted: 60 4.8% 95.9%; /* #F9FAFB */
+  --muted-foreground: 25 5.3% 44.7%; /* #6B7280 */
+  --popover: 0 0% 100%; /* #FFFFFF */
+  --popover-foreground: 20 14.3% 4.1%; /* #1F2937 */
+  --card: 0 0% 100%; /* #FFFFFF */
+  --card-foreground: 20 14.3% 4.1%; /* #1F2937 */
+  --border: 20 5.9% 90%; /* #E5E7EB */
+  --input: 20 5.9% 90%; /* #E5E7EB */
+  --primary: 15 85% 53%; /* #E85A2B */
+  --primary-foreground: 0 0% 100%; /* #FFFFFF */
+  --secondary: 60 4.8% 95.9%; /* #F9FAFB */
+  --secondary-foreground: 24 9.8% 10%; /* #374151 */
+  --accent: 60 4.8% 95.9%; /* #F9FAFB */
+  --accent-foreground: 24 9.8% 10%; /* #374151 */
+  --destructive: 0 84.2% 60.2%; /* #EF4444 */
+  --destructive-foreground: 60 9.1% 97.8%; /* #FEFEFE */
+  --ring: 15 85% 53%; /* #E85A2B */
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: 240 10% 3.9%; /* #0F172A */
+  --foreground: 0 0% 98%; /* #F8FAFC */
+  --muted: 240 3.7% 15.9%; /* #1E293B */
+  --muted-foreground: 240 5% 64.9%; /* #64748B */
+  --popover: 240 10% 3.9%; /* #0F172A */
+  --popover-foreground: 0 0% 98%; /* #F8FAFC */
+  --card: 240 10% 3.9%; /* #0F172A */
+  --card-foreground: 0 0% 98%; /* #F8FAFC */
+  --border: 240 3.7% 15.9%; /* #1E293B */
+  --input: 240 3.7% 15.9%; /* #1E293B */
+  --primary: 15 85% 53%; /* #E85A2B */
+  --primary-foreground: 0 0% 100%; /* #FFFFFF */
+  --secondary: 240 3.7% 15.9%; /* #1E293B */
+  --secondary-foreground: 0 0% 98%; /* #F8FAFC */
+  --accent: 240 3.7% 15.9%; /* #1E293B */
+  --accent-foreground: 0 0% 98%; /* #F8FAFC */
+  --destructive: 0 62.8% 30.6%; /* #DC2626 */
+  --destructive-foreground: 0 0% 98%; /* #F8FAFC */
+  --ring: 240 4.9% 83.9%; /* #CBD5E1 */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* Mobile container styles */
+.mobile-container {
+  max-width: 428px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: white;
+  position: relative;
+}
+
+/* Experience card hover effects */
+.experience-card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.experience-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Time slot button styles */
+.time-slot-btn {
+  transition: all 0.2s ease-in-out;
+}
+
+.time-slot-btn.active {
+  background-color: hsl(var(--primary));
+  color: white;
+  border-color: hsl(var(--primary));
+}
+
+/* Status bar spacing */
+.status-bar {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: white;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Bottom navigation fixed positioning */
+.bottom-nav-fixed {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 428px;
+  background: white;
+  border-top: 1px solid hsl(var(--border));
+  z-index: 50;
+}
+
+/* Content padding for bottom navigation */
+.content-with-nav {
+  padding-bottom: 80px;
+}
+
+/* Custom scrollbar for mobile */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Safe area insets for mobile devices */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .bottom-nav-fixed {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Form input focus styles */
+.form-input:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: hsl(var(--primary));
+  border-color: hsl(var(--primary));
+}
+
+/* Orange accent colors */
+.text-primary {
+  color: hsl(var(--primary));
+}
+
+.bg-primary {
+  background-color: hsl(var(--primary));
+}
+
+.border-primary {
+  border-color: hsl(var(--primary));
+}
+
+/* Star rating color */
+.text-yellow-400 {
+  color: #FBBF24;
+}
+
+/* Category icon backgrounds */
+.category-art {
+  background-color: #FED7AA;
+}
+
+.category-dance {
+  background-color: #DBEAFE;
+}
+
+.category-food {
+  background-color: #D1FAE5;
+}
+
+.category-photography {
+  background-color: #E9D5FF;
+}
