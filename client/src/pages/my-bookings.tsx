@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
-import { Calendar, Clock, MapPin, User, Phone, Mail, ChevronRight } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { Calendar, Clock, MapPin, User, Phone, Mail, ChevronRight, LogIn } from "lucide-react";
 import { format } from "date-fns";
 
 import StatusBar from "@/components/status-bar";
@@ -49,13 +49,33 @@ interface BookingWithDetails {
 }
 
 export default function MyBookings() {
+  const [, setLocation] = useLocation();
   const [email, setEmail] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
+  const [user, setUser] = useState<any>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const { data: bookings, isLoading, error } = useQuery({
+  // Check if user is logged in
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      setUser(JSON.parse(userData));
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  // Query for authenticated user's bookings
+  const { data: userBookings, isLoading: userBookingsLoading, error: userBookingsError } = useQuery({
+    queryKey: ["/api/my-bookings"],
+    queryFn: () => fetch("/api/my-bookings", { credentials: 'include' }).then(res => res.json()),
+    enabled: isAuthenticated,
+  });
+
+  // Query for email-based search (fallback for non-authenticated users)
+  const { data: emailBookings, isLoading: emailLoading, error: emailError } = useQuery({
     queryKey: ["/api/bookings/by-email", searchEmail],
     queryFn: () => fetch(`/api/bookings/by-email/${searchEmail}`).then(res => res.json()),
-    enabled: !!searchEmail,
+    enabled: !!searchEmail && !isAuthenticated,
   });
 
   const handleSearch = () => {
@@ -77,6 +97,11 @@ export default function MyBookings() {
     }
   };
 
+  // Determine which data to use
+  const bookings = isAuthenticated ? userBookings : emailBookings;
+  const isLoading = isAuthenticated ? userBookingsLoading : emailLoading;
+  const error = isAuthenticated ? userBookingsError : emailError;
+
   return (
     <div className="mobile-container bg-gray-50 min-h-screen">
       <StatusBar />
@@ -87,27 +112,60 @@ export default function MyBookings() {
       />
       
       <div className="p-4 space-y-6">
-        {/* Search Section */}
-        <Card>
-          <CardContent className="p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Find Your Bookings</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Enter your email address to view your booking history
-            </p>
-            <div className="flex gap-2">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1"
-              />
-              <Button onClick={handleSearch} disabled={!email.trim()}>
-                Search
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Authentication Status */}
+        {!isAuthenticated && (
+          <Card>
+            <CardContent className="p-4 text-center">
+              <LogIn className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+              <h3 className="font-semibold text-gray-900 mb-2">Sign in to view your bookings</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Access your complete booking history by signing in to your account
+              </p>
+              <div className="flex gap-2 justify-center">
+                <Link href="/login">
+                  <Button>Sign In</Button>
+                </Link>
+                <Link href="/signup">
+                  <Button variant="outline">Create Account</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Authenticated User Welcome */}
+        {isAuthenticated && user && (
+          <Card>
+            <CardContent className="p-4">
+              <h3 className="font-semibold text-gray-900 mb-1">Welcome back, {user.fullName}!</h3>
+              <p className="text-sm text-gray-600">Here are your recent bookings</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Search Section for non-authenticated users */}
+        {!isAuthenticated && (
+          <Card>
+            <CardContent className="p-4">
+              <h3 className="font-semibold text-gray-900 mb-3">Find Your Bookings</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Enter your email address to view your booking history
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={handleSearch} disabled={!email.trim()}>
+                  Search
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Loading State */}
         {isLoading && (
@@ -139,7 +197,8 @@ export default function MyBookings() {
         )}
 
         {/* No Bookings Found */}
-        {searchEmail && !isLoading && !error && (!bookings || bookings.length === 0) && (
+        {((isAuthenticated && !isLoading && (!bookings || bookings.length === 0)) || 
+          (searchEmail && !isLoading && !error && (!bookings || bookings.length === 0))) && (
           <Card>
             <CardContent className="p-6 text-center">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
