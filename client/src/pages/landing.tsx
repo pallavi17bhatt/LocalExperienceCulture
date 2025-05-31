@@ -83,11 +83,17 @@ export default function Landing() {
     },
     onSuccess: (data) => {
       localStorage.setItem("user", JSON.stringify(data.user));
+      
+      // Dispatch custom event to notify App component
+      window.dispatchEvent(new CustomEvent('userLogin'));
+      
       toast({
         title: "Welcome back!",
         description: "You have been signed in successfully.",
       });
-      setLocation("/");
+      
+      // Force a page reload to ensure proper authentication state
+      window.location.href = "/";
     },
     onError: (error: Error) => {
       toast({
@@ -116,11 +122,17 @@ export default function Landing() {
     },
     onSuccess: (data) => {
       localStorage.setItem("user", JSON.stringify(data.user));
+      
+      // Dispatch custom event to notify App component
+      window.dispatchEvent(new CustomEvent('userLogin'));
+      
       toast({
         title: "Welcome to Lokly!",
         description: "Your account has been created successfully.",
       });
-      setLocation("/");
+      
+      // Force a page reload to ensure proper authentication state
+      window.location.href = "/";
     },
     onError: (error: Error) => {
       toast({

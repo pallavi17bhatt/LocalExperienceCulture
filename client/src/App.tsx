@@ -52,11 +52,19 @@ function Router() {
       setIsAuthenticated(false);
     };
 
+    // Custom event for login
+    const handleLogin = () => {
+      const userData = localStorage.getItem("user");
+      setIsAuthenticated(!!userData);
+    };
+
     window.addEventListener('userLogout', handleLogout);
+    window.addEventListener('userLogin', handleLogin);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('userLogout', handleLogout);
+      window.removeEventListener('userLogin', handleLogin);
     };
   }, []);
 
