@@ -12,6 +12,8 @@ import {
   type InsertPackage, 
   type InsertBooking 
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, like, or } from "drizzle-orm";
 
 export interface IStorage {
   // Experiences
@@ -35,170 +37,151 @@ export interface IStorage {
   getBookingsByEmail(email: string): Promise<Booking[]>;
 }
 
-export class MemStorage implements IStorage {
-  private experiences: Map<number, Experience>;
-  private timeSlots: Map<number, TimeSlot>;
-  private packages: Map<number, Package>;
-  private bookings: Map<string, Booking>;
-  private currentId: number;
-
+export class DatabaseStorage implements IStorage {
   constructor() {
-    this.experiences = new Map();
-    this.timeSlots = new Map();
-    this.packages = new Map();
-    this.bookings = new Map();
-    this.currentId = 1;
+    // Initialize with seed data if needed
     this.seedData();
   }
 
-  private seedData() {
-    // Create sample experiences
-    const kathakExperience: Experience = {
-      id: 1,
-      title: "Traditional Kathak Dance Class",
-      description: "Immerse yourself in the rhythmic world of Kathak, one of India's most graceful classical dance forms. In this beginner-friendly session, you'll learn the fundamental footwork, hand gestures, and expressions that make Kathak so captivating. Our experienced instructor will guide you through a traditional routine, sharing cultural insights along the way.",
-      location: "Shivpuri Colony, Varanasi",
-      hostName: "Meera Sharma",
-      hostBio: "Professional Kathak dancer for 15+ years",
-      hostAvatar: "https://images.unsplash.com/photo-1494790108755-2616c6106130?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150",
-      imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300",
-      category: "Dance",
-      price: 59900, // ₹599 in paise
-      duration: 120, // 2 hours
-      rating: "4.8",
-      reviewCount: 124,
-      isActive: true,
-    };
+  private async seedData() {
+    try {
+      // Check if data already exists
+      const existingExperiences = await db.select().from(experiences).limit(1);
+      if (existingExperiences.length > 0) {
+        return; // Data already seeded
+      }
 
-    const cookingExperience: Experience = {
-      id: 2,
-      title: "Authentic Banarasi Cooking",
-      description: "Learn the secrets of traditional Banarasi cuisine with our expert chef. This hands-on cooking class will teach you to prepare authentic local dishes using traditional techniques and spices.",
-      location: "Old City, Varanasi",
-      hostName: "Chef Rajesh Kumar",
-      hostBio: "Master chef specializing in Banarasi cuisine for 20+ years",
-      hostAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150",
-      imageUrl: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300",
-      category: "Food",
-      price: 79900, // ₹799 in paise
-      duration: 180, // 3 hours
-      rating: "4.9",
-      reviewCount: 87,
-      isActive: true,
-    };
+      // Seed experiences
+      const experiencesData = [
+        {
+          title: "Traditional Kathak Dance Class",
+          description: "Immerse yourself in the rhythmic world of Kathak, one of India's most graceful classical dance forms. In this beginner-friendly session, you'll learn the fundamental footwork, hand gestures, and expressions that make Kathak so captivating. Our experienced instructor will guide you through a traditional routine, sharing cultural insights along the way.",
+          location: "Shivpuri Colony, Varanasi",
+          hostName: "Meera Sharma",
+          hostBio: "Professional Kathak dancer for 15+ years",
+          hostAvatar: "https://images.unsplash.com/photo-1494790108755-2616c6106130?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150",
+          imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300",
+          category: "Dance",
+          price: 59900,
+          duration: 120,
+          rating: "4.8",
+          reviewCount: 124,
+        },
+        {
+          title: "Authentic Banarasi Cooking",
+          description: "Learn the secrets of traditional Banarasi cuisine with our expert chef. This hands-on cooking class will teach you to prepare authentic local dishes using traditional techniques and spices.",
+          location: "Old City, Varanasi",
+          hostName: "Chef Rajesh Kumar",
+          hostBio: "Master chef specializing in Banarasi cuisine for 20+ years",
+          hostAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150",
+          imageUrl: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300",
+          category: "Food",
+          price: 79900,
+          duration: 180,
+          rating: "4.9",
+          reviewCount: 87,
+        }
+      ];
 
-    this.experiences.set(1, kathakExperience);
-    this.experiences.set(2, cookingExperience);
+      const insertedExperiences = await db.insert(experiences).values(experiencesData).returning();
 
-    // Create time slots for Kathak experience
-    const timeSlotsData = [
-      { id: 1, experienceId: 1, name: "Morning", startTime: "10:00", endTime: "12:00", isAvailable: true },
-      { id: 2, experienceId: 1, name: "Afternoon", startTime: "02:00", endTime: "04:00", isAvailable: true },
-      { id: 3, experienceId: 1, name: "Evening", startTime: "05:00", endTime: "07:00", isAvailable: true },
-      { id: 4, experienceId: 1, name: "Night", startTime: "07:30", endTime: "09:30", isAvailable: true },
-      { id: 5, experienceId: 2, name: "Morning", startTime: "09:00", endTime: "12:00", isAvailable: true },
-      { id: 6, experienceId: 2, name: "Evening", startTime: "05:00", endTime: "08:00", isAvailable: true },
-    ];
+      // Seed time slots
+      const timeSlotsData = [
+        { experienceId: insertedExperiences[0].id, name: "Morning", startTime: "10:00", endTime: "12:00" },
+        { experienceId: insertedExperiences[0].id, name: "Afternoon", startTime: "02:00", endTime: "04:00" },
+        { experienceId: insertedExperiences[0].id, name: "Evening", startTime: "05:00", endTime: "07:00" },
+        { experienceId: insertedExperiences[0].id, name: "Night", startTime: "07:30", endTime: "09:30" },
+        { experienceId: insertedExperiences[1].id, name: "Morning", startTime: "09:00", endTime: "12:00" },
+        { experienceId: insertedExperiences[1].id, name: "Evening", startTime: "05:00", endTime: "08:00" },
+      ];
 
-    timeSlotsData.forEach(slot => {
-      this.timeSlots.set(slot.id, slot);
-    });
+      await db.insert(timeSlots).values(timeSlotsData);
 
-    // Create packages
-    const packagesData = [
-      { id: 1, experienceId: 1, name: "Single Session", description: "One-time experience", sessions: 1, price: 59900, discount: 0 as number | null },
-      { id: 2, experienceId: 1, name: "3 Sessions", description: "Save 10%", sessions: 3, price: 161730, discount: 10 as number | null },
-      { id: 3, experienceId: 2, name: "Single Session", description: "One-time experience", sessions: 1, price: 79900, discount: 0 as number | null },
-    ];
+      // Seed packages
+      const packagesData = [
+        { experienceId: insertedExperiences[0].id, name: "Single Session", description: "One-time experience", sessions: 1, price: 59900, discount: 0 },
+        { experienceId: insertedExperiences[0].id, name: "3 Sessions", description: "Save 10%", sessions: 3, price: 161730, discount: 10 },
+        { experienceId: insertedExperiences[1].id, name: "Single Session", description: "One-time experience", sessions: 1, price: 79900, discount: 0 },
+      ];
 
-    packagesData.forEach(pkg => {
-      this.packages.set(pkg.id, pkg);
-    });
-
-    this.currentId = 7;
+      await db.insert(packages).values(packagesData);
+    } catch (error) {
+      console.error("Error seeding data:", error);
+    }
   }
 
   async getExperiences(): Promise<Experience[]> {
-    return Array.from(this.experiences.values()).filter(exp => exp.isActive);
+    return await db.select().from(experiences).where(eq(experiences.isActive, true));
   }
 
   async getExperienceById(id: number): Promise<Experience | undefined> {
-    return this.experiences.get(id);
+    const [experience] = await db.select().from(experiences).where(eq(experiences.id, id));
+    return experience || undefined;
   }
 
   async getExperiencesByCategory(category: string): Promise<Experience[]> {
-    return Array.from(this.experiences.values()).filter(
-      exp => exp.isActive && exp.category.toLowerCase() === category.toLowerCase()
-    );
+    return await db.select().from(experiences)
+      .where(eq(experiences.category, category))
+      .where(eq(experiences.isActive, true));
   }
 
   async searchExperiences(query: string): Promise<Experience[]> {
-    const lowerQuery = query.toLowerCase();
-    return Array.from(this.experiences.values()).filter(
-      exp => exp.isActive && (
-        exp.title.toLowerCase().includes(lowerQuery) ||
-        exp.description.toLowerCase().includes(lowerQuery) ||
-        exp.location.toLowerCase().includes(lowerQuery) ||
-        exp.category.toLowerCase().includes(lowerQuery)
+    const lowerQuery = `%${query.toLowerCase()}%`;
+    return await db.select().from(experiences)
+      .where(
+        or(
+          like(experiences.title, lowerQuery),
+          like(experiences.description, lowerQuery),
+          like(experiences.location, lowerQuery),
+          like(experiences.category, lowerQuery)
+        )
       )
-    );
+      .where(eq(experiences.isActive, true));
   }
 
   async createExperience(insertExperience: InsertExperience): Promise<Experience> {
-    const id = this.currentId++;
-    const experience: Experience = { ...insertExperience, id, isActive: true };
-    this.experiences.set(id, experience);
+    const [experience] = await db.insert(experiences).values(insertExperience).returning();
     return experience;
   }
 
   async getTimeSlotsByExperienceId(experienceId: number): Promise<TimeSlot[]> {
-    return Array.from(this.timeSlots.values()).filter(
-      slot => slot.experienceId === experienceId && slot.isAvailable
-    );
+    return await db.select().from(timeSlots)
+      .where(eq(timeSlots.experienceId, experienceId))
+      .where(eq(timeSlots.isAvailable, true));
   }
 
   async createTimeSlot(insertTimeSlot: InsertTimeSlot): Promise<TimeSlot> {
-    const id = this.currentId++;
-    const timeSlot: TimeSlot = { ...insertTimeSlot, id, isAvailable: true };
-    this.timeSlots.set(id, timeSlot);
+    const [timeSlot] = await db.insert(timeSlots).values(insertTimeSlot).returning();
     return timeSlot;
   }
 
   async getPackagesByExperienceId(experienceId: number): Promise<Package[]> {
-    return Array.from(this.packages.values()).filter(
-      pkg => pkg.experienceId === experienceId
-    );
+    return await db.select().from(packages).where(eq(packages.experienceId, experienceId));
   }
 
   async createPackage(insertPackage: InsertPackage): Promise<Package> {
-    const id = this.currentId++;
-    const pkg: Package = { ...insertPackage, id };
-    this.packages.set(id, pkg);
+    const [pkg] = await db.insert(packages).values(insertPackage).returning();
     return pkg;
   }
 
   async createBooking(insertBooking: InsertBooking): Promise<Booking> {
-    const bookingId = `LK${new Date().toISOString().slice(2, 10).replace(/-/g, '')}${String(this.currentId).padStart(3, '0')}`;
-    const booking: Booking = {
+    const bookingId = `LK${new Date().toISOString().slice(2, 10).replace(/-/g, '')}${String(Date.now()).slice(-3)}`;
+    const bookingData = {
       ...insertBooking,
-      id: this.currentId++,
       bookingId,
-      status: "confirmed",
-      createdAt: new Date(),
     };
-    this.bookings.set(bookingId, booking);
+    const [booking] = await db.insert(bookings).values(bookingData).returning();
     return booking;
   }
 
   async getBookingById(bookingId: string): Promise<Booking | undefined> {
-    return this.bookings.get(bookingId);
+    const [booking] = await db.select().from(bookings).where(eq(bookings.bookingId, bookingId));
+    return booking || undefined;
   }
 
   async getBookingsByEmail(email: string): Promise<Booking[]> {
-    return Array.from(this.bookings.values()).filter(
-      booking => booking.email === email
-    );
+    return await db.select().from(bookings).where(eq(bookings.email, email));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
