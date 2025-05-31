@@ -73,6 +73,41 @@ body {
   overscroll-behavior-y: contain;
 }
 
+/* Mobile app styling */
+.mobile-app {
+  max-width: 428px;
+  margin: 0 auto;
+  background: #fff;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Enhanced button animations for native feel */
+.mobile-button {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  touch-action: manipulation;
+}
+
+.mobile-button:active {
+  transform: scale(0.97);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Card hover effects for mobile */
+.mobile-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mobile-card:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Status bar height for iOS */
+.status-bar-height {
+  height: env(safe-area-inset-top, 20px);
+}
+
 :root {
   --background: 0 0% 100%; /* #FFFFFF */
   --foreground: 20 14.3% 4.1%; /* #1F2937 */

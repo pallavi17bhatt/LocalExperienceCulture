@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { BookingProvider } from "@/hooks/use-booking";
 import LoadingScreen from "@/components/loading-screen";
 import InstallPrompt from "@/components/install-prompt";
+import MobileBottomBar from "@/components/mobile-bottom-bar";
 
 import Home from "@/pages/home";
 import Search from "@/pages/search";
@@ -78,17 +79,20 @@ function Router() {
   }
 
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/search" component={Search} />
-      <Route path="/experience/:id" component={ExperienceDetail} />
-      <Route path="/availability/:id" component={Availability} />
-      <Route path="/checkout" component={Checkout} />
-      <Route path="/confirmation/:bookingId?" component={Confirmation} />
-      <Route path="/my-bookings" component={MyBookings} />
-      <Route path="/profile" component={Profile} />
-      <Route component={NotFound} />
-    </Switch>
+    <div className="pb-20">
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/search" component={Search} />
+        <Route path="/experience/:id" component={ExperienceDetail} />
+        <Route path="/availability/:id" component={Availability} />
+        <Route path="/checkout" component={Checkout} />
+        <Route path="/confirmation/:bookingId?" component={Confirmation} />
+        <Route path="/my-bookings" component={MyBookings} />
+        <Route path="/profile" component={Profile} />
+        <Route component={NotFound} />
+      </Switch>
+      <MobileBottomBar />
+    </div>
   );
 }
 
