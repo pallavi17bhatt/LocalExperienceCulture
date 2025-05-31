@@ -64,7 +64,7 @@ export default function Availability() {
       return;
     }
 
-    const selectedTime = timeSlots?.find(slot => slot.id === selectedTimeSlot);
+    const selectedTime = uniqueTimeSlots?.find(slot => slot.id === selectedTimeSlot);
     const selectedPkg = packages?.find(pkg => pkg.id === selectedPackage);
     const selectedDateInfo = dates.find(d => d.key === selectedDate);
 
@@ -92,6 +92,8 @@ export default function Availability() {
   }
 
   const canProceed = selectedTimeSlot && selectedPackage !== null;
+  
+  console.log('Selection state:', { selectedTimeSlot, selectedPackage, canProceed });
 
   return (
     <div className="min-h-screen bg-white">
@@ -190,19 +192,22 @@ export default function Availability() {
         </div>
 
         {/* Proceed to Book Button - Fixed at bottom */}
-        {canProceed && (
-          <div className="fixed bottom-20 left-0 right-0 px-6 py-4 bg-white border-t border-gray-200">
-            <Link href="/checkout">
-              <button 
-                onClick={handleProceedToBook}
-                className="w-full py-4 bg-primary text-white font-semibold rounded-xl flex items-center justify-center button-press touch-target"
-              >
-                <span>Proceed to Book</span>
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </button>
-            </Link>
-          </div>
-        )}
+        <div className="fixed bottom-20 left-0 right-0 px-6 py-4 bg-white border-t border-gray-200">
+          <Link href="/checkout">
+            <button 
+              onClick={handleProceedToBook}
+              disabled={!canProceed}
+              className={`w-full py-4 font-semibold rounded-xl flex items-center justify-center button-press touch-target ${
+                canProceed 
+                  ? "bg-primary text-white" 
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              <span>Proceed to Book</span>
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   );
