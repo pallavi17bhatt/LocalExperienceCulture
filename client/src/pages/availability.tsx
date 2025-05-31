@@ -110,7 +110,7 @@ export default function Availability() {
       </div>
 
       {/* Content */}
-      <div className="px-6 pb-48">
+      <div className="px-6 pb-24">
         <h2 className="text-xl font-bold text-gray-900 mb-1">{experience.title}</h2>
         <div className="flex items-center text-gray-600 mb-6">
           <MapPin className="w-4 h-4 text-primary mr-2" />
