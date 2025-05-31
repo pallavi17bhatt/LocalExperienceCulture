@@ -25,19 +25,22 @@ function Router() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Simulate loading screen duration
-    const loadingTimer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2500);
-
-    // Check authentication status
+    // Check authentication status first
     const userData = localStorage.getItem("user");
     setIsAuthenticated(!!userData);
 
-    return () => clearTimeout(loadingTimer);
+    // Show loading screen for new users only
+    if (!userData) {
+      const loadingTimer = setTimeout(() => {
+        setIsLoading(false);
+      }, 2500);
+      return () => clearTimeout(loadingTimer);
+    } else {
+      setIsLoading(false);
+    }
   }, []);
 
-  if (isLoading) {
+  if (isLoading && !isAuthenticated) {
     return <LoadingScreen />;
   }
 
