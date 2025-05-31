@@ -29,6 +29,24 @@ export default function Checkout() {
   const [, setLocation] = useLocation();
   const { bookingData } = useBooking();
   const { toast } = useToast();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check authentication status
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    setIsAuthenticated(!!userData);
+    
+    // Redirect to login if not authenticated
+    if (!userData) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to complete your booking.",
+        variant: "destructive",
+      });
+      setLocation("/login");
+      return;
+    }
+  }, []);
 
   const form = useForm<CheckoutForm>({
     resolver: zodResolver(checkoutSchema),
@@ -56,15 +74,30 @@ export default function Checkout() {
         totalAmount: Math.floor(bookingData.package.price * 1.28), // Adding taxes/fees
       };
 
+      // Simulate payment processing delay for dummy payments
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
       const response = await apiRequest("POST", "/api/bookings", bookingPayload);
       return response.json();
     },
     onSuccess: (booking) => {
       toast({
         title: "Payment Successful!",
-        description: "Your booking has been confirmed.",
+        description: "Your booking has been confirmed and payment processed.",
       });
-      setLocation(`/confirmation/${booking.bookingId}`);
+      
+      // Store booking data for confirmation page
+      localStorage.setItem("lastBooking", JSON.stringify({
+        bookingId: booking.bookingId,
+        experience: bookingData?.experience,
+        package: bookingData?.package,
+        timeSlot: bookingData?.timeSlot,
+        selectedDate: bookingData?.selectedDate,
+        totalPrice: bookingData?.package.price,
+        paymentMethod: form.getValues("paymentMethod"),
+      }));
+
+      setLocation("/confirmation");
     },
     onError: () => {
       toast({

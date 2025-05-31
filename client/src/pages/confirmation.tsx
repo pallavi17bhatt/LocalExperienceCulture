@@ -1,14 +1,31 @@
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "wouter";
-import { Check, Calendar, Clock, MapPin, Home, CalendarCheck } from "lucide-react";
+import { Link, useParams, useLocation } from "wouter";
+import { Check, Calendar, Clock, MapPin, Home, CalendarCheck, CheckCircle } from "lucide-react";
 import StatusBar from "@/components/status-bar";
 import type { Booking } from "@shared/schema";
 
 export default function Confirmation() {
   const { bookingId } = useParams<{ bookingId: string }>();
+  const [, setLocation] = useLocation();
+  const [lastBooking, setLastBooking] = useState<any>(null);
+
+  // Check for stored booking data from checkout
+  useEffect(() => {
+    const storedBooking = localStorage.getItem("lastBooking");
+    if (storedBooking) {
+      setLastBooking(JSON.parse(storedBooking));
+      // Clear the stored data after loading
+      localStorage.removeItem("lastBooking");
+    } else if (!bookingId) {
+      // If no booking data and no bookingId, redirect to home
+      setLocation("/");
+    }
+  }, [bookingId]);
 
   const { data: booking, isLoading } = useQuery<Booking>({
     queryKey: [`/api/bookings/${bookingId}`],
+    enabled: !!bookingId,
   });
 
   if (isLoading) {
