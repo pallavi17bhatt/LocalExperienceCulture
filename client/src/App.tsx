@@ -72,28 +72,21 @@ function Router() {
     return <LoadingScreen />;
   }
 
+  if (!isAuthenticated) {
+    return <Landing />;
+  }
+
   return (
     <Switch>
-      {!isAuthenticated ? (
-        <>
-          <Route path="/" component={Landing} />
-          <Route path="/login" component={Landing} />
-          <Route path="/signup" component={Landing} />
-          <Route component={Landing} />
-        </>
-      ) : (
-        <>
-          <Route path="/" component={Home} />
-          <Route path="/search" component={Search} />
-          <Route path="/experience/:id" component={ExperienceDetail} />
-          <Route path="/availability/:id" component={Availability} />
-          <Route path="/checkout" component={Checkout} />
-          <Route path="/confirmation/:bookingId?" component={Confirmation} />
-          <Route path="/my-bookings" component={MyBookings} />
-          <Route path="/profile" component={Profile} />
-          <Route component={NotFound} />
-        </>
-      )}
+      <Route path="/" component={Home} />
+      <Route path="/search" component={Search} />
+      <Route path="/experience/:id" component={ExperienceDetail} />
+      <Route path="/availability/:id" component={Availability} />
+      <Route path="/checkout" component={Checkout} />
+      <Route path="/confirmation/:bookingId?" component={Confirmation} />
+      <Route path="/my-bookings" component={MyBookings} />
+      <Route path="/profile" component={Profile} />
+      <Route component={NotFound} />
     </Switch>
   );
 }
