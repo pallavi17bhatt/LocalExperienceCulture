@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "wouter";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { 
   User, 
   Mail, 
@@ -15,7 +16,8 @@ import {
   Bell,
   CreditCard,
   Shield,
-  Globe
+  Globe,
+  LogIn
 } from "lucide-react";
 
 import StatusBar from "@/components/status-bar";
@@ -27,23 +29,58 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Profile() {
+  const [, setLocation] = useLocation();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { toast } = useToast();
 
-  // Mock user data - in a real app this would come from authentication
-  const user = {
-    name: "Priya Sharma",
-    email: "priya.sharma@gmail.com",
-    phone: "+91 98765 43210",
-    location: "Mumbai, Maharashtra",
-    joinDate: "March 2024",
-    avatar: undefined,
-    totalBookings: 5,
-    favoriteExperiences: 12,
-    membershipLevel: "Explorer"
-  };
+  // Check authentication status
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    setIsAuthenticated(!!userData);
+  }, []);
+
+  // Fetch user profile data from server
+  const { data: userProfile, isLoading, error } = useQuery({
+    queryKey: ["/api/auth/me"],
+    queryFn: () => fetch("/api/auth/me", { credentials: 'include' }).then(res => {
+      if (!res.ok) throw new Error('Failed to fetch user data');
+      return res.json();
+    }),
+    enabled: isAuthenticated,
+    retry: false,
+  });
+
+  // Logout mutation
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      return await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: 'include',
+      });
+    },
+    onSuccess: () => {
+      localStorage.removeItem("user");
+      setIsAuthenticated(false);
+      toast({
+        title: "Logged out successfully",
+        description: "You have been signed out of your account.",
+      });
+      setLocation("/");
+    },
+    onError: () => {
+      toast({
+        title: "Logout failed",
+        description: "There was an error signing you out.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const menuSections = [
     {
@@ -74,8 +111,15 @@ export default function Profile() {
   ];
 
   const handleLogout = () => {
-    // In a real app, this would handle logout logic
-    console.log("Logging out...");
+    logoutMutation.mutate();
+  };
+
+  // Calculate member since date
+  const getMemberSince = (createdAt: string) => {
+    return new Date(createdAt).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long' 
+    });
   };
 
   return (
@@ -88,64 +132,108 @@ export default function Profile() {
       />
       
       <div className="p-4 space-y-6">
+        {/* Authentication Required */}
+        {!isAuthenticated && (
+          <Card>
+            <CardContent className="p-6 text-center">
+              <LogIn className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="font-semibold text-gray-900 mb-2">Sign in to view your profile</h3>
+              <p className="text-gray-600 mb-4">
+                Access your account settings and personal information
+              </p>
+              <div className="flex gap-2 justify-center">
+                <Link href="/login">
+                  <Button>Sign In</Button>
+                </Link>
+                <Link href="/signup">
+                  <Button variant="outline">Create Account</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Loading State */}
+        {isAuthenticated && isLoading && (
+          <Card>
+            <CardContent className="p-6 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading your profile...</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Error State */}
+        {isAuthenticated && error && (
+          <Card>
+            <CardContent className="p-6 text-center">
+              <p className="text-red-600 mb-4">Unable to load profile data</p>
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.reload()}
+              >
+                Try Again
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* User Profile Section */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4 mb-4">
-              <Avatar className="w-16 h-16">
-                <AvatarImage src={user.avatar} />
-                <AvatarFallback className="bg-orange-100 text-orange-600 text-lg font-semibold">
-                  {user.name.split(' ').map(n => n[0]).join('')}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold text-gray-900">{user.name}</h2>
-                <p className="text-gray-600">{user.email}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="secondary" className="text-xs">
-                    {user.membershipLevel}
-                  </Badge>
-                  <span className="text-xs text-gray-500">Member since {user.joinDate}</span>
+        {isAuthenticated && userProfile && (
+          <>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4 mb-4">
+                  <Avatar className="w-16 h-16">
+                    <AvatarFallback className="bg-orange-100 text-orange-600 text-lg font-semibold">
+                      {userProfile.fullName?.split(' ').map((n: string) => n[0]).join('') || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <h2 className="text-xl font-semibold text-gray-900">{userProfile.fullName}</h2>
+                    <p className="text-gray-600">@{userProfile.username}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="secondary" className="text-xs">
+                        Explorer
+                      </Badge>
+                      <span className="text-xs text-gray-500">
+                        Member since {getMemberSince(userProfile.createdAt || new Date().toISOString())}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{user.totalBookings}</p>
-                <p className="text-sm text-gray-600">Total Bookings</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{user.favoriteExperiences}</p>
-                <p className="text-sm text-gray-600">Saved Experiences</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
-        {/* Contact Information */}
-        <Card>
-          <CardContent className="p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Contact Information</h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-700">{user.phone}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-700">{user.email}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <MapPin className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-700">{user.location}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            {/* Contact Information */}
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="font-semibold text-gray-900 mb-3">Contact Information</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Mail className="w-4 h-4 text-gray-400" />
+                    <span className="text-gray-700">{userProfile.email}</span>
+                  </div>
+                  {userProfile.phone && (
+                    <div className="flex items-center gap-3">
+                      <Phone className="w-4 h-4 text-gray-400" />
+                      <span className="text-gray-700">{userProfile.phone}</span>
+                    </div>
+                  )}
+                  {userProfile.location && (
+                    <div className="flex items-center gap-3">
+                      <MapPin className="w-4 h-4 text-gray-400" />
+                      <span className="text-gray-700">{userProfile.location}</span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
 
-        {/* Menu Sections */}
-        {menuSections.map((section, sectionIndex) => (
+        {/* Menu Sections - Only show for authenticated users */}
+        {isAuthenticated && userProfile && menuSections.map((section, sectionIndex) => (
           <Card key={section.title}>
             <CardContent className="p-4">
               <h3 className="font-semibold text-gray-900 mb-3">{section.title}</h3>
@@ -193,8 +281,8 @@ export default function Profile() {
           </Card>
         ))}
 
-        {/* Email Preferences */}
-        {notificationsEnabled && (
+        {/* Email Preferences - Only show for authenticated users */}
+        {isAuthenticated && userProfile && notificationsEnabled && (
           <Card>
             <CardContent className="p-4">
               <h3 className="font-semibold text-gray-900 mb-3">Email Preferences</h3>
@@ -230,19 +318,22 @@ export default function Profile() {
           </Card>
         )}
 
-        {/* Logout Button */}
-        <Card>
-          <CardContent className="p-4">
-            <Button
-              variant="outline"
-              className="w-full flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
-              onClick={handleLogout}
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Logout Button - Only show for authenticated users */}
+        {isAuthenticated && userProfile && (
+          <Card>
+            <CardContent className="p-4">
+              <Button
+                variant="outline"
+                className="w-full flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
+                onClick={handleLogout}
+                disabled={logoutMutation.isPending}
+              >
+                <LogOut className="w-4 h-4" />
+                {logoutMutation.isPending ? "Signing out..." : "Sign Out"}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* App Version */}
         <div className="text-center py-4">
