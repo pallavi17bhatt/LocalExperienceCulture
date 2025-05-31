@@ -15,26 +15,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get experience by ID
-  app.get("/api/experiences/:id", async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid experience ID" });
-      }
-
-      const experience = await storage.getExperienceById(id);
-      if (!experience) {
-        return res.status(404).json({ message: "Experience not found" });
-      }
-
-      res.json(experience);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch experience" });
-    }
-  });
-
-  // Search experiences
+  // Search experiences - must come before /:id route
   app.get("/api/experiences/search", async (req, res) => {
     try {
       const query = req.query.q as string;
@@ -54,6 +35,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to search experiences" });
     }
   });
+
+  // Get experience by ID
+  app.get("/api/experiences/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid experience ID" });
+      }
+
+      const experience = await storage.getExperienceById(id);
+      if (!experience) {
+        return res.status(404).json({ message: "Experience not found" });
+      }
+
+      res.json(experience);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch experience" });
+    }
+  });
+
+
 
   // Get time slots for an experience
   app.get("/api/experiences/:id/timeslots", async (req, res) => {

@@ -106,9 +106,9 @@ export class MemStorage implements IStorage {
 
     // Create packages
     const packagesData = [
-      { id: 1, experienceId: 1, name: "Single Session", description: "One-time experience", sessions: 1, price: 59900, discount: 0 },
-      { id: 2, experienceId: 1, name: "3 Sessions", description: "Save 10%", sessions: 3, price: 161730, discount: 10 },
-      { id: 3, experienceId: 2, name: "Single Session", description: "One-time experience", sessions: 1, price: 79900, discount: 0 },
+      { id: 1, experienceId: 1, name: "Single Session", description: "One-time experience", sessions: 1, price: 59900, discount: 0 as number | null },
+      { id: 2, experienceId: 1, name: "3 Sessions", description: "Save 10%", sessions: 3, price: 161730, discount: 10 as number | null },
+      { id: 3, experienceId: 2, name: "Single Session", description: "One-time experience", sessions: 1, price: 79900, discount: 0 as number | null },
     ];
 
     packagesData.forEach(pkg => {

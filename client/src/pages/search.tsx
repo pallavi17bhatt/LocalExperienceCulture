@@ -15,17 +15,22 @@ export default function SearchPage() {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedDate, setSelectedDate] = useState("today");
 
-  const { data: experiences, isLoading } = useQuery<Experience[]>({
+  const { data: experiences, isLoading, error } = useQuery<Experience[]>({
     queryKey: ["/api/experiences/search", { q: searchQuery, category: selectedCategory }],
-    queryFn: () => 
-      fetch(`/api/experiences/search?${new URLSearchParams({ 
-        q: searchQuery, 
-        category: selectedCategory 
-      }).toString()}`)
-        .then(res => res.json()),
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (searchQuery) params.append('q', searchQuery);
+      if (selectedCategory) params.append('category', selectedCategory);
+      
+      const response = await fetch(`/api/experiences/search?${params.toString()}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch experiences');
+      }
+      return response.json();
+    },
   });
 
-  const filteredExperiences = experiences || [];
+  const filteredExperiences = Array.isArray(experiences) ? experiences : [];
 
   const categories = ["Art", "Dance", "Food", "Photography"];
   const dateFilters = [
