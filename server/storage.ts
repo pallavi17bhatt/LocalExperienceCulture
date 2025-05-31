@@ -188,11 +188,12 @@ export class DatabaseStorage implements IStorage {
         packageId: bookings.packageId,
         timeSlotId: bookings.timeSlotId,
         selectedDate: bookings.selectedDate,
-        attendeeName: bookings.attendeeName,
-        attendeeEmail: bookings.attendeeEmail,
-        attendeePhone: bookings.attendeePhone,
+        attendeeName: bookings.fullName,
+        attendeeEmail: bookings.email,
+        attendeePhone: bookings.phone,
         paymentMethod: bookings.paymentMethod,
-        totalPrice: bookings.totalPrice,
+        totalPrice: bookings.totalAmount,
+        status: bookings.status,
         createdAt: bookings.createdAt,
         experience: {
           id: experiences.id,
@@ -217,8 +218,7 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(experiences, eq(bookings.experienceId, experiences.id))
       .leftJoin(packages, eq(bookings.packageId, packages.id))
       .leftJoin(timeSlots, eq(bookings.timeSlotId, timeSlots.id))
-      .where(eq(bookings.attendeeEmail, email))
-      .orderBy(desc(bookings.id));
+      .where(eq(bookings.email, email));
     
     return result;
   }

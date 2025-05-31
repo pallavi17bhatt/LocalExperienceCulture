@@ -14,10 +14,38 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Booking, Experience, Package, TimeSlot } from "@shared/schema";
 
-interface BookingWithDetails extends Booking {
-  experience: Experience;
-  package: Package;
-  timeSlot: TimeSlot;
+interface BookingWithDetails {
+  id: number;
+  bookingId: string;
+  experienceId: number;
+  packageId: number;
+  timeSlotId: number;
+  selectedDate: string;
+  attendeeName: string;
+  attendeeEmail: string;
+  attendeePhone: string;
+  paymentMethod: string;
+  totalPrice: number;
+  status: string;
+  createdAt: string;
+  experience: {
+    id: number;
+    title: string;
+    imageUrl: string;
+    location: string;
+    hostName: string;
+  };
+  package: {
+    id: number;
+    name: string;
+    price: number;
+  };
+  timeSlot: {
+    id: number;
+    name: string;
+    startTime: string;
+    endTime: string;
+  };
 }
 
 export default function MyBookings() {

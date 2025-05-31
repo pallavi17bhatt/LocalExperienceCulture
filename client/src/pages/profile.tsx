@@ -39,7 +39,7 @@ export default function Profile() {
     phone: "+91 98765 43210",
     location: "Mumbai, Maharashtra",
     joinDate: "March 2024",
-    avatar: null,
+    avatar: undefined,
     totalBookings: 5,
     favoriteExperiences: 12,
     membershipLevel: "Explorer"

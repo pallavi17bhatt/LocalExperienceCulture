@@ -27,15 +27,23 @@ export default function BottomNavigation({ currentPage }: BottomNavigationProps)
           </button>
         </Link>
         
-        <button className="flex flex-col items-center py-2 text-gray-400">
-          <CalendarCheck className="w-6 h-6 mb-1" />
-          <span className="text-xs font-medium">Bookings</span>
-        </button>
+        <Link href="/my-bookings">
+          <button className={`flex flex-col items-center py-2 ${
+            currentPage === "bookings" ? "text-primary" : "text-gray-400"
+          }`}>
+            <CalendarCheck className="w-6 h-6 mb-1" />
+            <span className="text-xs font-medium">Bookings</span>
+          </button>
+        </Link>
         
-        <button className="flex flex-col items-center py-2 text-gray-400">
-          <User className="w-6 h-6 mb-1" />
-          <span className="text-xs font-medium">Profile</span>
-        </button>
+        <Link href="/profile">
+          <button className={`flex flex-col items-center py-2 ${
+            currentPage === "profile" ? "text-primary" : "text-gray-400"
+          }`}>
+            <User className="w-6 h-6 mb-1" />
+            <span className="text-xs font-medium">Profile</span>
+          </button>
+        </Link>
       </div>
     </div>
   );
