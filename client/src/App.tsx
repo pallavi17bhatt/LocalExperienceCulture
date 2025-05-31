@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BookingProvider } from "@/hooks/use-booking";
 import LoadingScreen from "@/components/loading-screen";
+import InstallPrompt from "@/components/install-prompt";
 
 import Home from "@/pages/home";
 import Search from "@/pages/search";
@@ -99,6 +100,7 @@ function App() {
           <div className="mobile-container">
             <Toaster />
             <Router />
+            <InstallPrompt />
           </div>
         </BookingProvider>
       </TooltipProvider>
