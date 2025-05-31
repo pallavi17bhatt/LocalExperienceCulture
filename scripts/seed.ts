@@ -1,6 +1,7 @@
 import { db } from "../server/db";
-import { experiences, timeSlots, packages } from "../shared/schema";
+import { experiences, timeSlots, packages, users } from "../shared/schema";
 import { eq } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 async function seedDatabase() {
   try {

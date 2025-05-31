@@ -3,19 +3,30 @@ import {
   timeSlots, 
   packages, 
   bookings,
+  users,
   type Experience, 
   type TimeSlot, 
   type Package, 
   type Booking,
+  type User,
   type InsertExperience, 
   type InsertTimeSlot, 
   type InsertPackage, 
-  type InsertBooking 
+  type InsertBooking,
+  type InsertUser
 } from "@shared/schema";
+import bcrypt from "bcrypt";
 import { db } from "./db";
 import { eq, like, or } from "drizzle-orm";
 
 export interface IStorage {
+  // Users
+  createUser(user: InsertUser): Promise<User>;
+  getUserById(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  validateUserPassword(username: string, password: string): Promise<User | null>;
+
   // Experiences
   getExperiences(): Promise<Experience[]>;
   getExperienceById(id: number): Promise<Experience | undefined>;
@@ -34,13 +45,48 @@ export interface IStorage {
   // Bookings
   createBooking(booking: InsertBooking): Promise<Booking>;
   getBookingById(id: string): Promise<Booking | undefined>;
-  getBookingsByEmail(email: string): Promise<Booking[]>;
+  getBookingsByUserId(userId: number): Promise<any[]>;
+  getBookingsByEmail(email: string): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
   constructor() {
     // Initialize with seed data if needed
     this.seedData();
+  }
+
+  // User methods
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const hashedPassword = await bcrypt.hash(insertUser.passwordHash, 10);
+    const userData = {
+      ...insertUser,
+      passwordHash: hashedPassword,
+    };
+    const [user] = await db.insert(users).values(userData).returning();
+    return user;
+  }
+
+  async getUserById(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async validateUserPassword(username: string, password: string): Promise<User | null> {
+    const user = await this.getUserByUsername(username);
+    if (!user) return null;
+    
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    return isValid ? user : null;
   }
 
   private async seedData() {
@@ -219,6 +265,50 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(packages, eq(bookings.packageId, packages.id))
       .leftJoin(timeSlots, eq(bookings.timeSlotId, timeSlots.id))
       .where(eq(bookings.email, email));
+    
+    return result;
+  }
+
+  async getBookingsByUserId(userId: number): Promise<any[]> {
+    const result = await db
+      .select({
+        id: bookings.id,
+        bookingId: bookings.bookingId,
+        experienceId: bookings.experienceId,
+        packageId: bookings.packageId,
+        timeSlotId: bookings.timeSlotId,
+        selectedDate: bookings.selectedDate,
+        attendeeName: bookings.fullName,
+        attendeeEmail: bookings.email,
+        attendeePhone: bookings.phone,
+        paymentMethod: bookings.paymentMethod,
+        totalPrice: bookings.totalAmount,
+        status: bookings.status,
+        createdAt: bookings.createdAt,
+        experience: {
+          id: experiences.id,
+          title: experiences.title,
+          imageUrl: experiences.imageUrl,
+          location: experiences.location,
+          hostName: experiences.hostName,
+        },
+        package: {
+          id: packages.id,
+          name: packages.name,
+          price: packages.price,
+        },
+        timeSlot: {
+          id: timeSlots.id,
+          name: timeSlots.name,
+          startTime: timeSlots.startTime,
+          endTime: timeSlots.endTime,
+        }
+      })
+      .from(bookings)
+      .leftJoin(experiences, eq(bookings.experienceId, experiences.id))
+      .leftJoin(packages, eq(bookings.packageId, packages.id))
+      .leftJoin(timeSlots, eq(bookings.timeSlotId, timeSlots.id))
+      .where(eq(bookings.userId, userId));
     
     return result;
   }
