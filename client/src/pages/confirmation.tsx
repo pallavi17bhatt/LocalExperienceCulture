@@ -39,7 +39,10 @@ export default function Confirmation() {
     );
   }
 
-  if (!booking) {
+  // Use either fetched booking or stored booking data
+  const displayBooking = booking || lastBooking;
+
+  if (!displayBooking && !isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -61,7 +64,9 @@ export default function Confirmation() {
         </div>
         
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Booking Confirmed!</h1>
-        <p className="text-gray-600 mb-6">Your Traditional Kathak Dance Class has been successfully booked.</p>
+        <p className="text-gray-600 mb-6">
+          Your {displayBooking?.experience?.title || 'cultural experience'} has been successfully booked.
+        </p>
         
         {/* Booking Details */}
         <div className="w-full bg-gray-50 rounded-xl p-6 mb-6">
@@ -69,28 +74,30 @@ export default function Confirmation() {
           <div className="space-y-3 text-left">
             <div className="flex justify-between">
               <span className="text-gray-600">Date:</span>
-              <span className="font-medium">Wed, {booking.selectedDate}</span>
+              <span className="font-medium">{displayBooking?.selectedDate}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Time:</span>
-              <span className="font-medium">10:00 AM - 12:00 PM</span>
+              <span className="font-medium">
+                {displayBooking?.timeSlot?.startTime} - {displayBooking?.timeSlot?.endTime}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Location:</span>
-              <span className="font-medium">Shivpuri Colony, Varanasi</span>
+              <span className="font-medium">{displayBooking?.experience?.location || 'Location will be shared'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Booking ID:</span>
-              <span className="font-medium">#{booking.bookingId}</span>
+              <span className="font-medium">#{displayBooking?.bookingId || `BK${Date.now().toString().slice(-6)}`}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Total Paid:</span>
-              <span className="font-medium">₹{Math.floor(booking.totalAmount / 100)}</span>
+              <span className="font-medium">₹{displayBooking?.totalPrice || displayBooking?.package?.price}</span>
             </div>
           </div>
         </div>
         
-        <p className="text-sm text-gray-500 mb-8">A confirmation email has been sent to {booking.email}.</p>
+        <p className="text-sm text-gray-500 mb-8">A confirmation email has been sent to your registered email.</p>
         
         <Link href="/" className="w-full">
           <button className="w-full py-4 bg-primary text-white font-semibold rounded-xl mb-4 flex items-center justify-center">
