@@ -411,14 +411,37 @@ psql -h localhost -U app_user -d cultural_experiences -c "\dt"
 
 ### Sample Data Structure
 
-The seed script creates authentic Indian cultural experiences:
-- Traditional Kathak Dance Class
-- Authentic Banarasi Cooking
-- Pottery Workshop with Local Artisan  
-- Heritage Photography Walk
-- Traditional Silk Weaving Experience
+The seed script creates authentic Indian cultural experiences based in Varanasi:
 
-Each experience includes realistic pricing, host information, locations in Varanasi, and multiple time slots and packages.
+## Experiences Dataset
+
+| Experience | Host | Category | Location | Duration | Price (₹) | Rating | Time Slots | Packages |
+|------------|------|----------|----------|----------|-----------|--------|------------|----------|
+| **Traditional Kathak Dance Class** | Meera Sharma | Dance | Shivpuri Colony, Varanasi | 120 min | 599 | 4.8 (124 reviews) | 4 slots | 3 packages |
+| **Authentic Banarasi Cooking** | Chef Rajesh Kumar | Food | Old City, Varanasi | 180 min | 799 | 4.9 (87 reviews) | 2 slots | 2 packages |
+| **Pottery Workshop with Local Artisan** | Ravi Kumhar | Art | Ramnagar, Varanasi | 150 min | 499 | 4.7 (89 reviews) | 2 slots | 2 packages |
+| **Heritage Photography Walk** | Priya Gupta | Photography | Dashashwamedh Ghat, Varanasi | 180 min | 399 | 4.9 (156 reviews) | 2 slots | 2 packages |
+| **Traditional Silk Weaving Experience** | Mukesh Ansari | Art | Peeli Kothi, Varanasi | 240 min | 699 | 4.6 (67 reviews) | 2 slots | 2 packages |
+
+## Time Slot Availability
+
+| Experience | Available Times |
+|------------|-----------------|
+| **Kathak Dance Class** | Morning (10:00-12:00), Afternoon (14:00-16:00), Evening (17:00-19:00), Night (19:30-21:30) |
+| **Banarasi Cooking** | Morning (09:00-12:00), Evening (17:00-20:00) |
+| **Pottery Workshop** | Morning (10:00-12:30), Afternoon (14:00-16:30) |
+| **Photography Walk** | Early Morning (06:00-09:00), Evening (16:00-19:00) |
+| **Silk Weaving** | Morning (09:00-13:00), Afternoon (14:00-18:00) |
+
+## Package Options
+
+| Experience | Package Options |
+|------------|-----------------|
+| **Kathak Dance Class** | Single Session (₹599), 3 Sessions (₹1,617 - 10% off), 5 Sessions (₹2,546 - 15% off) |
+| **Banarasi Cooking** | Single Session (₹799), Weekend Package (₹1,438 - 10% off, 2 sessions) |
+| **Pottery Workshop** | Single Session (₹499), Artisan Package (₹1,248 - 17% off, 3 sessions with take-home pottery) |
+| **Photography Walk** | Single Walk (₹399), Photo Series (₹1,077 - 10% off, 3 themed walks) |
+| **Silk Weaving** | Single Session (₹699), Master Class (₹1,118 - 20% off, 2-day intensive course) |
 
 ## API Documentation
 
