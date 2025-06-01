@@ -106,7 +106,7 @@ export class DatabaseStorage implements IStorage {
           hostName: "Meera Sharma",
           hostBio: "Professional Kathak dancer for 15+ years",
           hostAvatar: "https://images.unsplash.com/photo-1494790108755-2616c6106130?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150",
-          imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300",
+          imageUrl: "https://images.unsplash.com/photo-1635151989412-1ead17f9aa44?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300",
           category: "Dance",
           price: 59900,
           duration: 120,
